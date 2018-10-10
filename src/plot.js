@@ -19,8 +19,14 @@ class ScatterPlot extends Component {
    	const height= this.props.size[1]
    	const node = this.node
    	const data = this.props.data
-   	console.log(d3.min(data, (d) => d.Year))
+   	const xMin = d3.min(data, (d) => d.Year)
+   	const xMax = d3.max(data, (d) => d.Year)
+   	console.log(xMin, xMax)
+   	const xScale = d3.scaleLinear().domain([xMin, xMax+1])
+                     .range([0, width]);
    	//const xScale = d3.scaleLinear().domain()
+   	const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
+
 
    	d3.select(node)
       .selectAll('rect')
@@ -33,6 +39,9 @@ class ScatterPlot extends Component {
       .data(this.props.data)
       .exit()
       .remove()
+
+   d3.select(node).append("g").attr("transform", "translate(0, "+ height + ")")
+    .attr("id", "x-axis").call(xAxis);
    }
    render(){
    	return(
