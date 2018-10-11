@@ -3,6 +3,11 @@ import './App.css';
 import * as d3 from "d3";
 
 
+// Lessons:
+// 	1. If working with Dates or times, use Date objects
+// 	2. Plan data structures in advance
+// 	3. If cleaning up object and you won't need the original, just convert the values vs creating multiple objects
+
 class ScatterPlot extends Component {
    constructor(props){
       super(props)
@@ -22,6 +27,7 @@ class ScatterPlot extends Component {
 	    bottom: 30,
 	    left: 60
 	  }
+
    	const height= this.props.size[1]
    	const node = this.node
    	const data = this.props.data
@@ -47,6 +53,11 @@ class ScatterPlot extends Component {
         d3.select(node).append("g").attr("transform", "translate(0, "+ height + ")")
     .attr("id", "x-axis").call(xAxis);
 
+    let modal = d3.select("body").append("div")
+		.attr("class", "tooltip")
+		.attr("id", "tooltip")
+		.style("opacity",0)
+
     d3.select(node)
       .selectAll('circle')
       .data(this.props.data)
@@ -70,8 +81,19 @@ class ScatterPlot extends Component {
       .attr('class', 'dot')
       .attr('data-xvalue', (d) => d.Year)
       .attr('data-yvalue', (d) => d.Time.toISOString())
+      .on('mouseover', function(d) {
+      	modal.transition().duration(200).style('opacity', .9)
+        modal.attr("data-year", d.Year)
+        modal.html(d.Name + ": "+ d.Nationality + "<br>"
+           	+ "Year: " + d.Year+", Time: "+d.Time
+           	+ (d.Doping?"<br><br>" +d.Doping:""))
+        .style("left", (d3.event.pageX) +"px")
+        .style("top", (d3.event.pageY+20)+"px")
+      })
+      .on('mouseout', function(d){
+      	modal.transition().duration(200).style('opacity', 0)
+      })
    	}
-   	
    }
    render(){
    	return(
@@ -80,5 +102,12 @@ class ScatterPlot extends Component {
    	)
    }
 }
+
+// div.html(d.Name + ": " + d.Nationality + "<br/>"
+//               + "Year: " +  d.Year + ", Time: " + timeFormat(d.Time) 
+//               + (d.Doping?"<br/><br/>" + d.Doping:""))
+//         .style("left", (d3.event.pageX) + "px")
+//         .style("top", (d3.event.pageY - 28) + "px");
+//     })
 
 export default ScatterPlot
