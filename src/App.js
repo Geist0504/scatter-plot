@@ -16,7 +16,6 @@ class App extends Component {
     return (
       <div className="App">
        <div className='container'>
-          <div id='title'>Doping in Professional Bicycle Racing</div>
           <div className='visHolder'>
             <ScatterPlot data={this.state.data} size={[800,500]}/>
           </div>

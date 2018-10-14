@@ -7,6 +7,7 @@ import * as d3 from "d3";
 // 	1. If working with Dates or times, use Date objects
 // 	2. Plan data structures in advance
 // 	3. If cleaning up object and you won't need the original, just convert the values vs creating multiple objects
+//	4. Declare svg is a variable returned from the selection of a node vs selecting that node very time if you nest a g in it as then you will be appending everything to the g.
 
 class ScatterPlot extends Component {
    constructor(props){
@@ -20,37 +21,39 @@ class ScatterPlot extends Component {
    		this.createPlot()
    }
    createPlot(){
-   	const width = this.props.size[0]
    	var margin = {
 	    top: 100,
 	    right: 20,
 	    bottom: 30,
 	    left: 60
 	  }
-
-   	const height= this.props.size[1]
+	const height =  630 - margin.top - margin.bottom;
+   	const width= 920 - margin.left - margin.right
    	const node = this.node
    	const data = this.props.data
    	const leftPadding = 50
-   	const topPadding = 50
    	const timeFormat = d3.timeFormat("%M:%S");
-   	console.log(data)
+   	console.log(height)
    	const yScale =d3.scaleTime().range([0, height]);
    	if(data[0]){
    		data.map((d) => {
    			let parsedTime = d.Time.split(':')
    			d.Time = new Date(Date.UTC(1970, 0, 1, 0, parsedTime[0], parsedTime[1]))
    		})
-   		yScale.domain(d3.extent(data,(d) => d.Time ))
+   		let svg = d3.select(node).attr("width", width + margin.left + margin.right)
+		  .attr("height", height + margin.top + margin.bottom)
+		  .append("g")
+		  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+   		yScale.domain(d3.extent(data,(d) => d.Time))
    		const yAxis = d3.axisLeft(yScale).tickFormat(timeFormat)
-   		d3.select(node).append("g").attr("transform", "translate("+leftPadding+")")
-    .attr("id", "y-axis").call(yAxis);
+   		svg.append("g").attr("transform", "translate("+leftPadding+")")
+    .attr("id", "y-axis").call(yAxis).attr("y", 6);
     	const xMin = d3.min(data, (d) => d.Year)
    		const xMax = d3.max(data, (d) => d.Year)
    		const xScale = d3.scaleLinear().domain([xMin-1, xMax+1])
                      .range([leftPadding, width]);
         const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
-        d3.select(node).append("g").attr("transform", "translate(0, "+ height + ")")
+        svg.append("g").attr("transform", "translate(0, "+ height + ")")
     .attr("id", "x-axis").call(xAxis);
 
     let modal = d3.select("body").append("div")
@@ -58,20 +61,17 @@ class ScatterPlot extends Component {
 		.attr("id", "tooltip")
 		.style("opacity",0)
 
-    d3.select(node)
-      .selectAll('circle')
+    svg.selectAll('circle')
       .data(this.props.data)
       .enter()
       .append('circle')
    
-   d3.select(node)
-      .selectAll('circle')
+   svg.selectAll('circle')
       .data(this.props.data)
       .exit()
       .remove()
 
-   d3.select(node)
-      .selectAll('circle')
+   svg.selectAll('circle')
       .data(data)
       .style('fill', '#228b22') //TODO: Need to make this conditional
       .attr('cx', (d) => xScale(d.Year))
@@ -82,7 +82,7 @@ class ScatterPlot extends Component {
       .attr('data-xvalue', (d) => d.Year)
       .attr('data-yvalue', (d) => d.Time.toISOString())
       .on('mouseover', function(d) {
-      	modal.transition().duration(200).style('opacity', .9)
+      	modal.transition().duration(100).style('opacity', .9)
         modal.attr("data-year", d.Year)
         modal.html(d.Name + ": "+ d.Nationality + "<br>"
            	+ "Year: " + d.Year+", Time: "+d.Time
@@ -93,6 +93,14 @@ class ScatterPlot extends Component {
       .on('mouseout', function(d){
       	modal.transition().duration(200).style('opacity', 0)
       })
+
+    svg.append("text")
+        .attr("id","title")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "30px") 
+        .text("Doping in Professional Bicycle Racing");
    	}
    }
    render(){
