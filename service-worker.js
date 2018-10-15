@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.2/workbox-sw.js");
 
 importScripts(
-  "/scatter-plot/precache-manifest.9547b1a15b4468d1acc13c3ab1a6b3ad.js"
+  "/scatter-plot/precache-manifest.c1d544ec87bdcc1460843a6409dea468.js"
 );
 
 workbox.clientsClaim();
