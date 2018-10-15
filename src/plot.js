@@ -31,9 +31,9 @@ class ScatterPlot extends Component {
    	const width= 920 - margin.left - margin.right
    	const node = this.node
    	const data = this.props.data
+   	const color = d3.scaleOrdinal().domain([true, false]).range(["ffb347", "2ca02c"]);
    	const leftPadding = 50
    	const timeFormat = d3.timeFormat("%M:%S");
-   	console.log(height)
    	const yScale =d3.scaleTime().range([0, height]);
    	if(data[0]){
    		data.map((d) => {
@@ -71,9 +71,45 @@ class ScatterPlot extends Component {
       .exit()
       .remove()
 
+  let legend = svg.selectAll(".legend")
+    .data(color.domain())
+    .enter()
+    .append("g")
+    .attr("class", "legend")
+    .attr("id", "legend")
+    .attr("transform", function(d, i) {
+      return "translate(0," + (height/2 - i * 20) + ")";
+    });
+
+  legend.append("rect")
+    .attr("x", width - 18)
+    .attr("width", 18)
+    .attr("height", 18)
+    .style("fill", color);
+
+  legend.append("text")
+    .attr("x", width - 24)
+    .attr("y", 9)
+    .attr("dy", ".35em")
+    .style("text-anchor", "end")
+    .text(function(d) {console.log(d)
+
+      if (d) return "Riders with doping allegations";
+      else {
+        return "No doping allegations";
+      }
+    })
+
+    //subtitle
+  svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2) + 25)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "20px") 
+        .text("35 Fastest times up Alpe d'Huez");
+
    svg.selectAll('circle')
       .data(data)
-      .style('fill', '#228b22') //TODO: Need to make this conditional
       .attr('cx', (d) => xScale(d.Year))
       .attr('cy', (d, i) => yScale(d.Time))
       .attr('r', 6)
@@ -81,6 +117,7 @@ class ScatterPlot extends Component {
       .attr('class', 'dot')
       .attr('data-xvalue', (d) => d.Year)
       .attr('data-yvalue', (d) => d.Time.toISOString())
+      .style('fill', (d) => color(d.Doping != ""))
       .on('mouseover', function(d) {
       	modal.transition().duration(100).style('opacity', .9)
         modal.attr("data-year", d.Year)
