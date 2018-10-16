@@ -92,8 +92,7 @@ class ScatterPlot extends Component {
     .attr("y", 9)
     .attr("dy", ".35em")
     .style("text-anchor", "end")
-    .text(function(d) {console.log(d)
-
+    .text(function(d) {
       if (d) return "Riders with doping allegations";
       else {
         return "No doping allegations";
